@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mở Rộng & Giải Mã Link4M</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h2 { color: #333; margin-bottom: 20px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+        #result {
+            margin-top: 20px;
+            word-break: break-all;
+            font-size: 14px;
+        }
+        .loading { color: #888; font-style: italic; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Giải Mã Link4M</h2>
+    <input type="text" id="linkInput" placeholder="Dán link Link4M vào đây...">
+    <button onclick="processLink()">Lấy Link Gốc</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function processLink() {
+    const input = document.getElementById('linkInput').value.trim();
+    const resultDiv = document.getElementById('result');
+
+    if (!input) {
+        resultDiv.className = 'error';
+        resultDiv.innerText = 'Vui lòng nhập đường dẫn Link4M!';
+        return;
+    }
+
+    resultDiv.className = 'loading';
+    resultDiv.innerText = 'Đang tự động xử lý và lấy link (có thể mất 10-20 giây)...';
+
+    try {
+        const response = await fetch('/api/bypass', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: input })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            resultDiv.className = 'success';
+            resultDiv.innerHTML = `Link gốc: <br><a href="${data.finalUrl}" target="_blank" rel="noopener">${data.finalUrl}</a>`;
+        } else {
+            resultDiv.className = 'error';
+            resultDiv.innerText = data.error || 'Có lỗi xảy ra.';
+        }
+    } catch (err) {
+        resultDiv.className = 'error';
+        resultDiv.innerText = 'Không thể kết nối đến máy chủ xử lý.';
+    }
+}
+</script>
+
+</body>
+</html>
